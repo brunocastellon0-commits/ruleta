@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Ruleta de Carnaval Challenge - Juego interactivo para fiestas">
+    <title>Carnaval Challenge!</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confettiContainer"></div>
+    
+    <!-- Background Overlay -->
+    <div class="background-overlay"></div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">
+                <span class="title-word">¡Carnaval</span>
+                <span class="title-word">Challenge!</span>
+            </h1>
+        </header>
+
+        <div class="wheel-wrapper">
+            <div class="wheel-outer-ring">
+                <div class="wheel-container" id="wheelContainer">
+                    <canvas id="wheelCanvas"></canvas>
+                </div>
+                <!-- Center mask stays fixed while wheel spins -->
+                <div class="wheel-center-fixed">
+                    <div class="center-mask"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Display -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-card" id="resultCard">
+                <div class="result-icon" id="resultIcon">🎭</div>
+                <h2 class="result-title" id="resultTitle">¡A Bailar!</h2>
+                <p class="result-description" id="resultDescription">¡Muestra tus mejores pasos de baile!</p>
+            </div>
+        </div>
+
+        <!-- Spin Button -->
+        <button class="spin-button" id="spinButton">
+            <span class="button-text">GIRAR AHORA</span>
+            <span class="button-shine"></span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button class="sound-toggle" id="soundToggle">
+            🔊
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
