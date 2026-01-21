@@ -175,13 +175,15 @@ body::before {
 .wheel-outer-ring {
     position: relative;
     width: min(90vw, 450px);
-    height: min(90vw, 450px);
+    aspect-ratio: 1 / 1;
+    max-width: 450px;
 }
 
 /* Wheel Container - Clean, minimal neon accent */
 .wheel-container {
     width: 100%;
     height: 100%;
+    aspect-ratio: 1 / 1;
     position: relative;
     border-radius: 50%;
     box-shadow: 
@@ -207,6 +209,7 @@ body::before {
     width: 100%;
     height: 100%;
     border-radius: 50%;
+    display: block;
 }
 
 /* Wheel Center - Powerful, dominant */
@@ -215,8 +218,9 @@ body::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 180px;
-    height: 180px;
+    width: 40%;
+    aspect-ratio: 1 / 1;
+    max-width: 180px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, var(--gray-dark), var(--black-pure));
     box-shadow: 
@@ -243,8 +247,8 @@ body::before {
 }
 
 .center-mask {
-    width: 274px !important;
-    height: 274px !important;
+    width: 152% !important;
+    aspect-ratio: 1 / 1;
     background-image: url('templates/diablo_polera.png');
     background-size: contain;
     background-repeat: no-repeat;
@@ -484,9 +488,19 @@ body::before {
     
     .wheel-outer-ring {
         width: 95vw;
-        height: 95vw;
+        aspect-ratio: 1 / 1;
         max-width: 400px;
-        max-height: 400px;
+    }
+
+    .wheel-center-fixed {
+        width: 40%;
+        aspect-ratio: 1 / 1;
+        max-width: 160px;
+    }
+
+    .center-mask {
+        width: 152% !important;
+        aspect-ratio: 1 / 1;
     }
 
     .result-title {
