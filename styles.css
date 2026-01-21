@@ -499,7 +499,7 @@ body::before {
     }
 }
 
-/* Loading Animation */
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -509,7 +509,7 @@ body::before {
     animation: spin 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
-/* Mask decoration - Hidden (not needed in premium design) */
+
 .mask-decoration {
     display: none;
 }

@@ -341,33 +341,35 @@ function playSound(type) {
 wheelContainer.addEventListener('click', spinWheel);
 resultContainer.addEventListener('click', hideResult);
 
-// Handle background video audio
-const backgroundVideo = document.querySelector('.background-video');
+// Handle background audio (MP3)
+const backgroundAudio = document.getElementById('backgroundAudio');
+let audioStarted = false;
 
-function enableVideoAudio() {
-    if (backgroundVideo && backgroundVideo.muted) {
-        backgroundVideo.muted = false;
-        backgroundVideo.volume = 1.0;
-        backgroundVideo.play().catch(e => console.log("Audio play error:", e));
-        console.log('Video audio enabled');
+function enableBackgroundAudio() {
+    if (backgroundAudio && !audioStarted) {
+        backgroundAudio.currentTime = 29; // Start at 29 seconds
+        backgroundAudio.volume = 0.7; // 70% volume
+        backgroundAudio.play().catch(e => console.log("Audio play error:", e));
+        audioStarted = true;
+        console.log('Background audio started at 29 seconds');
     }
 }
 
 // Enable audio on any interaction
 document.addEventListener('click', () => {
     initAudioContext();
-    enableVideoAudio();
+    enableBackgroundAudio();
 }, { once: true });
 
-// Also try to enable on specifically clicking the wheel (redundant but safe)
-wheelContainer.addEventListener('click', enableVideoAudio);
+// Also try to enable on specifically clicking the wheel
+wheelContainer.addEventListener('click', enableBackgroundAudio);
 
 // Make the center (devil) clickable too
 const centerFixed = document.querySelector('.wheel-center-fixed');
 if (centerFixed) {
     centerFixed.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent double firing if overlapping
-        enableVideoAudio();
+        enableBackgroundAudio();
         spinWheel();
     });
 }
