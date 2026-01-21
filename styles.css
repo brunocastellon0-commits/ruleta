@@ -497,20 +497,33 @@ body::before {
 /* Responsive Adjustments */
 @media (max-width: 480px) {
     .container {
-        padding: var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-xs);
+        justify-content: center;
+    }
+    
+    .header {
+        padding: var(--spacing-md) 0;
     }
     
     .title {
         font-size: 2.5rem;
+        margin-bottom: 0;
     }
     
+    .wheel-outer-ring {
+        width: 95vw;
+        height: 95vw;
+        max-width: 400px;
+        max-height: 400px;
+    }
+
     .result-title {
         font-size: 2rem;
     }
     
-    .spin-button {
-        height: 60px;
-        font-size: 1.5rem;
+    .result-card {
+        padding: var(--spacing-lg);
+        width: 90%;
     }
 }
 

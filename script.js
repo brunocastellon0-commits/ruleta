@@ -26,6 +26,7 @@ let isSpinning = false;
 let currentRotation = 0;
 let soundEnabled = true;
 let audioContext = null;
+let lastWinningIndex = -1;
 
 // Initialize audio context on first interaction
 function initAudioContext() {
@@ -95,16 +96,31 @@ function drawWheel() {
         ctx.textBaseline = 'middle';
         
         // Draw icon
-        ctx.font = 'bold 32px Arial';
+        const words = option.text.split(' ');
+        const isMultiLine = words.length > 1;
+        
+        ctx.font = 'bold 30px Arial';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(option.icon, radius * 0.65, -10);
+        // Move content closer to outer edge where segment is wider (radius * 0.76)
+        // Previous was 0.65 which is closer to center (narrow part)
+        ctx.fillText(option.icon, radius * 0.76, isMultiLine ? -22 : -10);
         
         // Draw text
-        ctx.font = 'bold 18px Poppins, sans-serif';
+        // Slightly smaller font for multiline to ensure fit
+        ctx.font = isMultiLine ? 'bold 15px Poppins, sans-serif' : 'bold 18px Poppins, sans-serif';
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
         ctx.shadowBlur = 4;
-        ctx.fillText(option.text, radius * 0.65, 15);
+        
+        if (isMultiLine) {
+            // Draw multiple lines
+            words.forEach((word, i) => {
+                ctx.fillText(word, radius * 0.76, 8 + (i * 18));
+            });
+        } else {
+            // Draw single line
+            ctx.fillText(option.text, radius * 0.76, 20);
+        }
         
         ctx.restore();
     });
@@ -132,10 +148,38 @@ function spinWheel() {
     
     isSpinning = true;
     
-    // Generate random spins and final angle
-    const spins = 5 + Math.floor(Math.random() * 3); // 5-7 full rotations
-    const randomDegrees = Math.random() * 360; // Random stop position
-    const totalRotation = (spins * 360) + randomDegrees;
+    // Force a DIFFERENT winner than the last one to improve "randomness" feel
+    let winningIndex;
+    do {
+         winningIndex = Math.floor(Math.random() * wheelOptions.length);
+    } while (winningIndex === lastWinningIndex && wheelOptions.length > 1);
+    
+    lastWinningIndex = winningIndex; // Save for next time
+    
+    // Calculate the angle to land on this specific segment
+    // Logic: segmentIndex = Math.floor((360 - rotation) / sliceAngle)
+    // So targetRotation must satisfy: winningIndex = (360 - targetRotation) / sliceAngle
+    const sliceAngle = 360 / wheelOptions.length;
+    
+    // Add random offset within the segment (10% to 90%) to avoid lines
+    const offsetInSegment = (Math.random() * 0.8 + 0.1) * sliceAngle; 
+    
+    // Calculate target position in the circle (0-360)
+    // 360 - rotation = index * slice + offset
+    // rotation = 360 - (index * slice + offset)
+    const targetAngle = 360 - (winningIndex * sliceAngle + offsetInSegment);
+    
+    // Current position
+    const currentMod = currentRotation % 360;
+    
+    // Calculate distance to go (must be positive)
+    let distToGo = targetAngle - currentMod;
+    if (distToGo < 0) distToGo += 360;
+    
+    // Add random full spins (5 to 8)
+    const spins = 5 + Math.floor(Math.random() * 4);
+    const totalRotation = (spins * 360) + distToGo;
+    
     const finalRotation = currentRotation + totalRotation;
     
     // Play spin sound
@@ -151,7 +195,7 @@ function spinWheel() {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Easing function (ease-out)
+        // Easing function (ease-out cubic)
         const easeProgress = 1 - Math.pow(1 - progress, 3);
         const rotation = startRotation + (totalRotation * easeProgress);
         
@@ -162,17 +206,11 @@ function spinWheel() {
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
-            currentRotation = finalRotation % 360;
+            currentRotation = finalRotation; // Keep exact float to avoid drift
             wheelCanvas.style.transform = `rotate(${currentRotation}deg)`;
             
-            // Calculate which segment is at the top (north/up position)
-            // When wheel rotates clockwise, we need to find which segment moved to the top
-            const sliceAngle = 360 / wheelOptions.length;
-            
-            // Direct calculation: which segment is now at the top after rotation
-            // Invert the rotation to find original position
-            const segmentIndex = Math.floor((360 - currentRotation) / sliceAngle) % wheelOptions.length;
-            const result = wheelOptions[segmentIndex];
+            // Result is already known: winningIndex
+            const result = wheelOptions[winningIndex];
             
             // Show result after spin completes
             setTimeout(() => {
