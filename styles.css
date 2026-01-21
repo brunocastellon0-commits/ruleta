@@ -44,16 +44,33 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: 
-        linear-gradient(135deg, rgba(26, 10, 46, 0.85) 0%, rgba(22, 33, 62, 0.9) 50%, rgba(15, 52, 96, 0.85) 100%),
-        url('templates/unnamed.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    background: var(--dark-bg);
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
     color: var(--text-light);
+}
+
+/* Background Video */
+.background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+/* Background Overlay - darker to ensure content is visible */
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(26, 10, 46, 0.85) 0%, rgba(22, 33, 62, 0.9) 50%, rgba(15, 52, 96, 0.85) 100%);
+    z-index: -1;
 }
 
 /* Animated Background */
@@ -227,6 +244,7 @@ body::before {
         0 0 40px rgba(255, 215, 0, 0.4),
         inset 0 0 20px rgba(0, 0, 0, 0.3);
     background: linear-gradient(135deg, #2a1a4e, #1a0a2e);
+    cursor: pointer;
 }
 
 #wheelCanvas {
@@ -241,8 +259,8 @@ body::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--primary-red), var(--primary-gold));
     box-shadow: 
@@ -256,9 +274,9 @@ body::before {
 }
 
 .center-mask {
-    width: 60px;
-    height: 60px;
-    background-image: url('templates/flecha-Photoroom.png');
+    width: 150px;
+    height: 150px;
+    background-image: url('templates/Gemini_Generated_Image_wjijmkwjijmkwjij-Photoroom.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

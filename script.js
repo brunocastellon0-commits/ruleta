@@ -32,13 +32,12 @@ let soundEnabled = true;
 // DOM Elements
 const wheelCanvas = document.getElementById('wheelCanvas');
 const ctx = wheelCanvas.getContext('2d');
-const spinButton = document.getElementById('spinButton');
+const wheelContainer = document.getElementById('wheelContainer');
 const resultContainer = document.getElementById('resultContainer');
 const resultCard = document.getElementById('resultCard');
 const resultIcon = document.getElementById('resultIcon');
 const resultTitle = document.getElementById('resultTitle');
 const resultDescription = document.getElementById('resultDescription');
-const soundToggle = document.getElementById('soundToggle');
 const confettiContainer = document.getElementById('confettiContainer');
 
 // Set canvas size
@@ -122,7 +121,6 @@ function spinWheel() {
     if (isSpinning) return;
     
     isSpinning = true;
-    spinButton.disabled = true;
     
     // Generate random spins and final angle
     const spins = 5 + Math.floor(Math.random() * 3); // 5-7 full rotations
@@ -130,8 +128,6 @@ function spinWheel() {
     const totalRotation = (spins * 360) + randomDegrees;
     const finalRotation = currentRotation + totalRotation;
     
-    // Play spin sound
-    playSound('spin');
     
     // Animate wheel
     const duration = 4000;
@@ -166,10 +162,8 @@ function spinWheel() {
             const segmentIndex = Math.floor((360 - currentRotation) / sliceAngle) % wheelOptions.length;
             const result = wheelOptions[segmentIndex];
             
-            // Show result after spin completes
             setTimeout(() => {
                 showResult(result);
-                playSound('win');
                 createConfetti();
             }, 500);
         }
@@ -200,7 +194,6 @@ function hideResult() {
     resultContainer.classList.remove('show');
     setTimeout(() => {
         isSpinning = false;
-        spinButton.disabled = false;
     }, 300);
 }
 
@@ -226,51 +219,10 @@ function createConfetti() {
     }
 }
 
-// Sound effects (simple beep sounds using Web Audio API)
-function playSound(type) {
-    if (!soundEnabled) return;
-    
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    if (type === 'spin') {
-        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.1);
-    } else if (type === 'win') {
-        // Happy sound
-        const frequencies = [523.25, 659.25, 783.99]; // C, E, G
-        frequencies.forEach((freq, index) => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.1);
-            gain.gain.setValueAtTime(0.2, audioContext.currentTime + index * 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 0.3);
-            osc.start(audioContext.currentTime + index * 0.1);
-            osc.stop(audioContext.currentTime + index * 0.1 + 0.3);
-        });
-    }
-}
 
-// Toggle sound
-function toggleSound() {
-    soundEnabled = !soundEnabled;
-    soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-    soundToggle.classList.toggle('muted', !soundEnabled);
-}
 
 // Event Listeners
-spinButton.addEventListener('click', spinWheel);
-soundToggle.addEventListener('click', toggleSound);
+wheelContainer.addEventListener('click', spinWheel);
 resultContainer.addEventListener('click', hideResult);
 
 // Prevent scroll on mobile when touching the wheel
