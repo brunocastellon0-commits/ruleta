@@ -1,33 +1,40 @@
 // Wheel Configuration
 const wheelOptions = [
-    { text: 'PUCHITO', color: '#D32F2F', icon: '🚬' },
-    { text: 'BAILE', color: '#FFB300', icon: '💃' },
-    { text: 'VERDAD', color: '#1976D2', icon: '🗣️' },
-    { text: 'RETO', color: '#388E3C', icon: '⚡' },
     { text: 'BESO', color: '#E91E63', icon: '💋' },
     { text: 'SHOT', color: '#F57C00', icon: '🥃' },
-    { text: 'PUCHITO', color: '#7B1FA2', icon: '🚬' },
-    { text: 'BAILE', color: '#00BCD4', icon: '💃' },
-    { text: 'RETO', color: '#FFC107', icon: '⚡' },
-    { text: 'VERDAD', color: '#4CAF50', icon: '🗣️' },
-    { text: 'SHOT', color: '#FF5722', icon: '🥃' },
-    { text: 'BESO', color: '#9C27B0', icon: '💋' }
+    { text: 'RETO', color: '#7B1FA2', icon: '😈' },
+    { text: 'SECO', color: '#1976D2', icon: '🍻' },
+    { text: 'SECO MOJADO', color: '#D32F2F', icon: '🚬' },
+    { text: 'BESO', color: '#C2185B', icon: '💋' },
+    { text: 'SHOT', color: '#EF6C00', icon: '🥃' },
+    { text: 'RETO', color: '#388E3C', icon: '😈' },
+    { text: 'SECO', color: '#0288D1', icon: '🍻' },
+    { text: 'SECO MOJADO', color: '#C62828', icon: '🚬' }
 ];
 
 // Challenge descriptions
 const challengeDescriptions = {
-    'PUCHITO': '¡Comparte un puchito conmigo! Vamos a relajarnos juntos.',
-    'BAILE': '¡Bailemos juntos! Muéstrame tus mejores pasos.',
-    'VERDAD': '¡Hazme una pregunta! Te responderé con total honestidad.',
-    'RETO': '¡Tienes un reto para mí! Dime qué debo hacer.',
-    'BESO': '¡Te ganaste un beso! ¿En la mejilla o en la mano?',
-    'SHOT': '¡Brindemos juntos! Vamos por un shot.'
+    'BESO': '¿Timidez? Cierra los ojos, yo hago el resto.',
+    'SHOT': '¡Arriba, abajo, al centro y pa\' dentro!',
+    'RETO': '¡Vamos a alocarnos! ¿Te atreves?',
+    'SECO': '¡No me hagas quedar mal! ¡Gota doble!',
+    'SECO MOJADO': '¡Para que pegue más rápido!'
 };
 
 // State
 let isSpinning = false;
 let currentRotation = 0;
 let soundEnabled = true;
+let audioContext = null;
+
+// Initialize audio context on first interaction
+function initAudioContext() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('Audio context initialized');
+    }
+    return audioContext;
+}
 
 // DOM Elements
 const wheelCanvas = document.getElementById('wheelCanvas');
@@ -120,6 +127,9 @@ function shadeColor(color, percent) {
 function spinWheel() {
     if (isSpinning) return;
     
+    // Initialize audio context on first click
+    initAudioContext();
+    
     isSpinning = true;
     
     // Generate random spins and final angle
@@ -128,6 +138,8 @@ function spinWheel() {
     const totalRotation = (spins * 360) + randomDegrees;
     const finalRotation = currentRotation + totalRotation;
     
+    // Play spin sound
+    playSound('spin');
     
     // Animate wheel
     const duration = 4000;
@@ -162,8 +174,10 @@ function spinWheel() {
             const segmentIndex = Math.floor((360 - currentRotation) / sliceAngle) % wheelOptions.length;
             const result = wheelOptions[segmentIndex];
             
+            // Show result after spin completes
             setTimeout(() => {
                 showResult(result);
+                playSound('win');
                 createConfetti();
             }, 500);
         }
@@ -189,7 +203,6 @@ function showResult(result) {
     }, 4000);
 }
 
-// Hide result
 function hideResult() {
     resultContainer.classList.remove('show');
     setTimeout(() => {
@@ -219,13 +232,91 @@ function createConfetti() {
     }
 }
 
+// Sound effects (simple beep sounds using Web Audio API)
+function playSound(type) {
+    if (!soundEnabled) {
+        console.log('Sound disabled');
+        return;
+    }
+    
+    if (!audioContext) {
+        console.log('Audio context not initialized yet');
+        return;
+    }
+    
+    try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        if (type === 'spin') {
+            console.log('Playing spin sound');
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        } else if (type === 'win') {
+            console.log('Playing win sound');
+            // Happy sound
+            const frequencies = [523.25, 659.25, 783.99]; // C, E, G
+            frequencies.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.1);
+                gain.gain.setValueAtTime(0.2, audioContext.currentTime + index * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + index * 0.1 + 0.3);
+                osc.start(audioContext.currentTime + index * 0.1);
+                osc.stop(audioContext.currentTime + index * 0.1 + 0.3);
+            });
+        }
+    } catch (error) {
+        console.error('Error playing sound:', error);
+    }
+}
+
 
 
 // Event Listeners
 wheelContainer.addEventListener('click', spinWheel);
 resultContainer.addEventListener('click', hideResult);
 
-// Prevent scroll on mobile when touching the wheel
+// Handle background video audio
+const backgroundVideo = document.querySelector('.background-video');
+
+function enableVideoAudio() {
+    if (backgroundVideo && backgroundVideo.muted) {
+        backgroundVideo.muted = false;
+        backgroundVideo.volume = 1.0;
+        backgroundVideo.play().catch(e => console.log("Audio play error:", e));
+        console.log('Video audio enabled');
+    }
+}
+
+// Enable audio on any interaction
+document.addEventListener('click', () => {
+    initAudioContext();
+    enableVideoAudio();
+}, { once: true });
+
+// Also try to enable on specifically clicking the wheel (redundant but safe)
+wheelContainer.addEventListener('click', enableVideoAudio);
+
+// Make the center (devil) clickable too
+const centerFixed = document.querySelector('.wheel-center-fixed');
+if (centerFixed) {
+    centerFixed.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent double firing if overlapping
+        enableVideoAudio();
+        spinWheel();
+    });
+}
+
 document.addEventListener('touchmove', (e) => {
     if (e.target.closest('.wheel-container')) {
         e.preventDefault();
