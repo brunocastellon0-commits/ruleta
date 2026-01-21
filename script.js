@@ -1,24 +1,24 @@
-// Wheel Configuration
+// Wheel Configuration - Black & White Alternating
 const wheelOptions = [
-    { text: 'BESO', color: '#E91E63', icon: '💋' },
-    { text: 'SHOT', color: '#F57C00', icon: '🥃' },
-    { text: 'RETO', color: '#7B1FA2', icon: '😈' },
-    { text: 'SECO', color: '#1976D2', icon: '🍻' },
-    { text: 'SECO MOJADO', color: '#D32F2F', icon: '🚬' },
-    { text: 'BESO', color: '#C2185B', icon: '💋' },
-    { text: 'SHOT', color: '#EF6C00', icon: '🥃' },
-    { text: 'RETO', color: '#388E3C', icon: '😈' },
-    { text: 'SECO', color: '#0288D1', icon: '🍻' },
-    { text: 'SECO MOJADO', color: '#C62828', icon: '🚬' }
+    { text: 'BESO', color: '#FFFFFF', icon: '💋' },      // White
+    { text: 'SHOT', color: '#000000', icon: '🥃' },      // Black
+    { text: 'RETO', color: '#FFFFFF', icon: '😈' },      // White
+    { text: 'SECO', color: '#000000', icon: '🍻' },      // Black
+    { text: 'SECO MOJADO', color: '#FFFFFF', icon: '🚬' }, // White
+    { text: 'BESO', color: '#000000', icon: '💋' },      // Black
+    { text: 'SHOT', color: '#FFFFFF', icon: '🥃' },      // White
+    { text: 'RETO', color: '#000000', icon: '😈' },      // Black
+    { text: 'SECO', color: '#FFFFFF', icon: '🍻' },      // White
+    { text: 'SECO MOJADO', color: '#000000', icon: '🚬' } // Black
 ];
 
 // Challenge descriptions
 const challengeDescriptions = {
-    'BESO': '¿Timidez? Cierra los ojos, yo hago el resto.',
-    'SHOT': '¡Arriba, abajo, al centro y pa\' dentro!',
-    'RETO': '¡Vamos a alocarnos! ¿Te atreves?',
-    'SECO': '¡No me hagas quedar mal! ¡Gota doble!',
-    'SECO MOJADO': '¡Para que pegue más rápido!'
+    'BESO': '💋 Lo que pasa en Oruro se queda en Oruro 🤫',
+    'SHOT': '🥃 ¡Arriba, abajo, al centro y pa\' dentro! 🎯',
+    'RETO': '😈 ¡Sé creativo! 🎨',
+    'SECO': '🍺 ¡Ese vaso está muy lleno! 💧',
+    'SECO MOJADO': '🚬💦 ¿Por quiénes? 🤔'
 };
 
 // State
@@ -76,17 +76,25 @@ function drawWheel() {
         ctx.arc(centerX, centerY, radius, startAngle, endAngle);
         ctx.closePath();
         
-        // Fill with gradient
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-        gradient.addColorStop(0, option.color);
-        gradient.addColorStop(1, shadeColor(option.color, -20));
-        ctx.fillStyle = gradient;
+        
+        // Fill with gradient or solid color
+        if (option.color === '#FFFFFF') {
+            // White segments stay pure white
+            ctx.fillStyle = '#FFFFFF';
+        } else {
+            // Other colors get gradient
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, option.color);
+            gradient.addColorStop(1, shadeColor(option.color, -20));
+            ctx.fillStyle = gradient;
+        }
         ctx.fill();
         
         // Add border
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
         ctx.stroke();
+        
         
         // Add text
         ctx.save();
@@ -95,30 +103,38 @@ function drawWheel() {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
+        // Determine text and stroke colors based on background
+        const isWhiteBg = option.color === '#FFFFFF';
+        const textColor = isWhiteBg ? '#FFFFFF' : '#000000';
+        const strokeColor = isWhiteBg ? '#000000' : '#FFFFFF';
+        
         // Draw icon
         const words = option.text.split(' ');
         const isMultiLine = words.length > 1;
         
         ctx.font = 'bold 30px Arial';
-        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 3;
+        ctx.fillStyle = textColor;
         // Move content closer to outer edge where segment is wider (radius * 0.76)
-        // Previous was 0.65 which is closer to center (narrow part)
+        ctx.strokeText(option.icon, radius * 0.76, isMultiLine ? -22 : -10);
         ctx.fillText(option.icon, radius * 0.76, isMultiLine ? -22 : -10);
         
         // Draw text
-        // Slightly smaller font for multiline to ensure fit
         ctx.font = isMultiLine ? 'bold 15px Poppins, sans-serif' : 'bold 18px Poppins, sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 4;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 2.5;
+        ctx.fillStyle = textColor;
         
         if (isMultiLine) {
             // Draw multiple lines
             words.forEach((word, i) => {
+                ctx.strokeText(word, radius * 0.76, 8 + (i * 18));
                 ctx.fillText(word, radius * 0.76, 8 + (i * 18));
             });
         } else {
             // Draw single line
+            ctx.strokeText(option.text, radius * 0.76, 20);
             ctx.fillText(option.text, radius * 0.76, 20);
         }
         
@@ -230,8 +246,9 @@ function showResult(result) {
     resultTitle.textContent = `¡${result.text}!`;
     resultDescription.textContent = challengeDescriptions[result.text];
     
-    // Apply result color theme
-    resultCard.style.background = `linear-gradient(135deg, ${result.color}, ${shadeColor(result.color, -30)})`;
+    
+    // Apply neon gradient theme
+    resultCard.style.background = `linear-gradient(135deg, #00E5FF 0%, #B24BF3 50%, #E91EFF 100%)`;
     
     resultContainer.classList.add('show');
     
@@ -250,7 +267,7 @@ function hideResult() {
 
 // Create confetti animation
 function createConfetti() {
-    const colors = ['#FFB300', '#D32F2F', '#1976D2', '#388E3C', '#E91E63', '#F57C00'];
+    const colors = ['#00E5FF', '#E91EFF', '#FFFFFF', '#00E5FF', '#E91EFF', '#FFFFFF'];
     const confettiCount = 50;
     
     for (let i = 0; i < confettiCount; i++) {
