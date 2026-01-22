@@ -52,9 +52,16 @@ const confettiContainer = document.getElementById('confettiContainer');
 function setCanvasSize() {
     const container = document.getElementById('wheelContainer');
     const size = container.offsetWidth;
-    wheelCanvas.width = size;
-    wheelCanvas.height = size;
-    drawWheel();
+    
+    // Solo configurar si el container tiene dimensiones válidas
+    if (size > 0) {
+        wheelCanvas.width = size;
+        wheelCanvas.height = size;
+        drawWheel();
+    } else {
+        // Reintentar después de un breve delay si aún no está listo
+        setTimeout(setCanvasSize, 100);
+    }
 }
 
 // Draw the wheel
@@ -380,10 +387,44 @@ document.addEventListener('touchmove', (e) => {
     }
 }, { passive: false });
 
+// Preload critical resources
+function preloadResources() {
+    return new Promise((resolve) => {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const diabloImage = new Image();
+        let resourcesLoaded = 0;
+        const totalResources = 1; // Solo la imagen del diablo es crítica
+        
+        function checkComplete() {
+            resourcesLoaded++;
+            if (resourcesLoaded >= totalResources) {
+                // Asegurar que el canvas esté dibujado
+                setCanvasSize();
+                drawWheel();
+                
+                // Pequeño delay para asegurar que todo se renderizó
+                setTimeout(() => {
+                    if (loadingScreen) {
+                        loadingScreen.classList.add('hidden');
+                    }
+                    resolve();
+                }, 300);
+            }
+        }
+        
+        // Precargar imagen del diablo
+        diabloImage.onload = checkComplete;
+        diabloImage.onerror = () => {
+            console.warn('No se pudo cargar la imagen del diablo, continuando de todos modos');
+            checkComplete();
+        };
+        diabloImage.src = 'templates/diablo_polera.png';
+    });
+}
+
 // Initialize
 window.addEventListener('load', () => {
-    setCanvasSize();
-    drawWheel();
+    preloadResources();
 });
 
 window.addEventListener('resize', () => {
